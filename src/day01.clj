@@ -17,6 +17,16 @@
      (conj (get result 1) (parse-long (get values 1)))
     ]))
 
+(defn- accumulate [ls result]
+  (if (empty? ls)
+    result
+    (let [head (first ls)
+          tail (rest ls)]
+      (let [total (inc (get result head 0))]
+       (recur tail (assoc result head total))))))
+
+(defn- lookup [result value summary] (+ result (* value (get summary value 0))))
+
 (defn part1 [content]
   (let [result (reduce collect [`() `()] content)] 
     (let [lhs (sort (get result 0))
@@ -24,11 +34,16 @@
       (println lhs)
       (println rhs)
       (println "result =" (reduce + (map #(abs (- %1 %2)) lhs rhs)))
-    )
-  ))
+    )))
 
 (defn part2 [content]
-  (println "Running part2!!"))
+  (let [result (reduce collect [`() `()] content)] 
+    (let [lhs (sort (get result 0))
+          rhs (sort (get result 1))]
+      (let [summary (accumulate rhs {})]
+        (println "result =" (reduce #(lookup %1 %2 summary) 0 lhs))
+      )
+    )))
 
 (defn -main [& args]
   (let [result (utils/parse-arguments day-num args)]
