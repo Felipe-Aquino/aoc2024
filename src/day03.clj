@@ -5,12 +5,12 @@
 
 (def day-num "day03")
 
-(defn mul-eval [values]
+(defn- mul-eval [values]
   (let [a (parse-long (get values 1))
         b (parse-long (get values 2))]
     (* a b)))
 
-(defn instruction-total-calc [instr]
+(defn- instruction-total-calc [instr]
   (let [matcher (re-matcher #"mul\((\d+),(\d+)\)" instr)]
     (loop [match (re-find matcher)
            total 0]
@@ -28,8 +28,29 @@
         (println "\\->" instr-total)
         (recur (rest instructions) (+ total instr-total))))))
 
+(defn- instruction-total-calc-2 [instr is-enabled]
+  (let [matcher (re-matcher #"(?:do\(\)|don't\(\)|mul\((\d+),(\d+)\))" instr)]
+    (loop [match (re-find matcher)
+           total 0
+           enabled is-enabled]
+      (println match)
+      (if (nil? match)
+        {:total total :enabled enabled}
+        (case (get match 0)
+          "do()" (recur (re-find matcher) total true)
+          "don't()" (recur (re-find matcher) total false)
+          (recur (re-find matcher) (if enabled (+ total (mul-eval match)) total) enabled))))))
+
 (defn part2 [content]
-  (println "Running part2!!"))
+  (loop [instructions content
+         total 0
+         enabled true]
+    (if (empty? instructions)
+      (println "result =" total)
+      (let [result (instruction-total-calc-2 (first instructions) enabled)]
+        (println (first instructions))
+        (println "\\->" (:total result) "," (:enabled result))
+        (recur (rest instructions) (+ total (:total result)) (:enabled result))))))
 
 (defn -main [& args]
   (let [result (utils/parse-arguments day-num args)]
