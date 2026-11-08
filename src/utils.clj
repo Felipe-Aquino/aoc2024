@@ -16,7 +16,10 @@ Usage examples:
 ======================================================================
 "))
 
-(defn add2 [a b] (+ a b))
+
+; space-split: str -> (str vector)
+(defn space-split [value] (split value #"\s+"))
+
 (defn read-file [filepath] (split (slurp filepath) #"\n"))
 
 (defn- parse-input [inp day-name]
