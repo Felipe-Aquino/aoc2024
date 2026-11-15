@@ -65,8 +65,34 @@
         ]
     (println "XMAS amount =" xmas-count)))
 
+(defn- get-value [letter]
+  (case letter
+    "M" 1
+    "S" -1
+    2))
+
+(defn- test-x-mas [grid acc [row col]]
+  (if (= (grid-get grid row col) "A")
+    (let [tl (grid-get grid (dec row) (dec col))
+          tr (grid-get grid (dec row) (inc col))
+          bl (grid-get grid (inc row) (dec col))
+          br (grid-get grid (inc row) (inc col))
+          balance (reduce #(+ %1 (get-value %2)) 0 [tl tr bl br])]
+      (if (and (not= tl br) (= balance 0)) (inc acc) acc))
+    acc))
+
 (defn part2 [content]
-  (println "Running part2!!"))
+  (let [grid (read-grid content)
+        size (grid-size grid)
+        x-mas-count (
+          reduce
+            (fn [acc state] (test-x-mas grid acc state))
+            0
+            (for [row (range 1 (dec (:nrows size)))
+                  col (range 1 (dec (:ncols size)))]
+              [row col]))
+        ]
+    (println "X-MAS amount =" x-mas-count)))
 
 (defn -main [& args]
   (let [result (utils/parse-arguments day-num args)]
